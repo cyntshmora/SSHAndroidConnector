@@ -2,6 +2,8 @@ package com.tgd.javasshtest;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.PorterDuff;
 import android.os.Bundle;
 import android.text.Layout;
 import android.text.method.ScrollingMovementMethod;
@@ -9,7 +11,10 @@ import android.view.inputmethod.InputMethodManager;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
+
 import androidx.appcompat.app.AppCompatActivity;
+import androidx.core.content.ContextCompat;
 
 import com.jcraft.jsch.ChannelExec;
 import com.jcraft.jsch.JSch;
@@ -20,11 +25,12 @@ import java.io.IOException;
 import java.io.InputStream;
 
 public class MainActivity extends AppCompatActivity {
-    TextView shellOutput;
-    Session session;
-    EditText commandEditTxt;
-    String host, username, password;
-    Integer port;
+    private TextView shellOutput;
+    private Session session;
+    private EditText commandEditTxt;
+    private String host, username, password;
+    private Integer port;
+    private final String initialCommand = "ipconfig";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -52,9 +58,19 @@ public class MainActivity extends AppCompatActivity {
                 session.setConfig("StrictHostKeyChecking", "no");
                 session.setTimeout(100000);
                 session.connect();
-                executeSSHCommand("ipconfig");
-            } catch (Exception e) {
+                if (session.isConnected()){
+                    String msg = "Connected to "+ host + ":" + port +"\n\n";
+                    setText(shellOutput, msg);
+                    executeSSHCommand(initialCommand);
+                } else{
+                    commandEditTxt.setText(R.string.error_msg);
+                    blockButton(btn);
+                }
+
+            } catch (JSchException e) {
                 e.printStackTrace();
+                setText(shellOutput, getResources().getString(R.string.error_msg));
+                blockButton(btn);
             }
         });
         thread.start();
@@ -97,23 +113,29 @@ public class MainActivity extends AppCompatActivity {
                     break;
                 }
                 try {
-                    Thread.sleep(1000);
+                    Thread.sleep(500);
                 } catch (Exception ee) {
+                    ee.printStackTrace();
                 }
             }
-            setText(shellOutput,"\n\nCommand: ipconfig\n");
-            System.out.println("output: " + outputBuffer.toString());
-            System.out.println("error: " + errorBuffer.toString());
-            setText(shellOutput, "\noutput: " + outputBuffer.toString());
-            setText(shellOutput,"\nerror: " + errorBuffer.toString());
+            if (errorBuffer.toString().isEmpty()){
+                errorBuffer.append("nothing");
+            }
+            if (outputBuffer.toString().isEmpty()){
+                outputBuffer.append("nothing");
+            }
+            setText(shellOutput,"\n\nCOMMAND: " + command + "\n");
+            setText(shellOutput, "\nOUTPUT: " + outputBuffer.toString());
+            setText(shellOutput,"\nERROR: " + errorBuffer.toString());
             channel.disconnect();
-            // show success in UI with a snackbar alternatively use a toast
+
         }
         catch(JSchException | IOException e){
             // show the error in the UI
             e.printStackTrace();
         }
     }
+
     private void setText(final TextView text,final String value){
         runOnUiThread(() -> {
             text.append(value);
@@ -125,5 +147,25 @@ public class MainActivity extends AppCompatActivity {
                     text.scrollBy(0, scrollDelta);
             }
         });
+    }
+    private void blockButton(final Button button){
+        runOnUiThread(() ->{
+            button.setEnabled(false);
+            button.getBackground().setColorFilter(ContextCompat.getColor(this, R.color.gray), PorterDuff.Mode.MULTIPLY);
+        });
+    }
+
+    @Override
+    public void finish() {
+        if (session.isConnected()){
+            Toast.makeText(getApplicationContext(), R.string.close_connection, Toast.LENGTH_LONG).show();
+            session.disconnect();
+        }
+        super.finish();
+    }
+
+    @Override
+    public void onBackPressed() {
+        super.onBackPressed();
     }
 }

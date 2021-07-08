@@ -28,16 +28,19 @@
             android:background="@android:color/black"
             android:isScrollContainer="true"
             android:padding="8dp"
+            android:text="@string/connecting"
             android:textColor="@color/white"
-            android:textSize="18sp" />
+            android:textSize="14sp"
+            android:minHeight="600dp"/>
     </ScrollView>
 
     <EditText
         android:id="@+id/editTxtCommand"
         android:layout_width="0dp"
         android:layout_height="0dp"
+        android:autofillHints="@string/command_hind"
         android:background="@color/white"
-        android:hint="Comando"
+        android:hint="@string/command_hind"
         android:padding="4dp"
         android:singleLine="true"
         android:textColor="@color/black"
@@ -54,14 +57,14 @@
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_gravity="center"
-        android:background="?attr/colorPrimary"
-        android:text="COMENZAR"
+        android:backgroundTint="?attr/colorPrimary"
+        android:text="@string/button_connect"
         android:textColor="@android:color/background_light"
         app:layout_constraintTop_toBottomOf="@id/scrollView"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintHorizontal_bias="0.0"
         app:layout_constraintStart_toEndOf="@id/editTxtCommand"
-        tools:text="COMENZAR" />
+        tools:text="@string/button_connect" />
 
 </androidx.constraintlayout.widget.ConstraintLayout>

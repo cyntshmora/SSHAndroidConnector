@@ -6,4 +6,9 @@
     <string name="username">Username</string>
     <string name="password">Password</string>
     <string name="button_send">CONNECT</string>
+    <string name="connecting">Connecting...\n</string>
+    <string name="button_connect">SEND</string>
+    <string name="command_hind">Your command</string>
+    <string name="error_msg">\nThe connection to the server could not be established, check the data entered.</string>
+    <string name="close_connection">The connection will be closed</string>
 </resources>
